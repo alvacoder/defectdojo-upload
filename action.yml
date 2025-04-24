@@ -2,7 +2,7 @@ name: "Defectdojo Upload"
 author: "Adeniji Idris (Alvacoder)"
 description: "A github action that sends scan reports to a DefectDojo instance with support for multiple authentication methods"
 branding:
-  icon: 'code'  
+  icon: 'share'  
   color: 'green'
 inputs:
   defectdojo_url:
