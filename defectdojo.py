@@ -23,6 +23,7 @@ class Defectdojo:
 
         # Required Defectdojo Variables.
         self.defectdojo_url = get_env_var("DEFECTDOJO_URL")
+        self.defectdojo_reimport_status = get_env_var("DEFECTDOJO_REIMPORT_STATUS")
         self.defectdojo_product_type = get_env_var("DEFECTDOJO_PRODUCT_TYPE")
         self.defectdojo_product = get_env_var("DEFECTDOJO_PRODUCT")
         self.defectdojo_environment_type = get_env_var("DEFECTDOJO_ENVIRONMENT_TYPE")
@@ -40,6 +41,14 @@ class Defectdojo:
     ) -> int:
 
         api_endpoint = f"{self.defectdojo_url}/api/v2/import-scan/"
+
+        if self.defectdojo_reimport_status and self.defectdojo_reimport_status.lower() == "true":
+            api_endpoint = f"{self.defectdojo_url}/api/v2/reimport-scan/"
+            logger.info("Using reimport-scan API endpoint")
+        else:
+            api_endpoint = f"{self.defectdojo_url}/api/v2/import-scan/"
+            logger.info("Using import-scan API endpoint")
+
         headers = {
             "Authorization": f"Token {self.defectdojo_api_key}",
             "Proxy-Authorization": f"Bearer {self.defectdojo_iap_token}"
@@ -53,7 +62,7 @@ class Defectdojo:
             "auto_create_context": True,
             "deduplication_on_engagement": True,
             "close_old_findings": True,
-            "verified": False,
+            "push_to_jira": True,
         }
 
         try:
@@ -80,7 +89,7 @@ class Defectdojo:
                         timeout=180
                     )
 
-                if r.status_code == 201:
+                if r.status_code == 201 or r.status_code == 200:
                     return r.status_code
                 else:
                     logger.error(f"Upload of results failed with status code {r.status_code}")
